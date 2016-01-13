@@ -1,3 +1,6 @@
+# This script automates the task of creating a duplicate object in a rails deployment.  It copies over an old classes model, controller, helper, and views, then 
+#replaces all references to the old class with references to the new class.  Using this probably means you're already in a bad state, since you're literally copying code.
+#...but sometimes you have to deal with being in a bad state, cause aint nobody got time for refacotring
 require 'fileutils'
 require 'rubygems'
 require 'active_support/inflector'
