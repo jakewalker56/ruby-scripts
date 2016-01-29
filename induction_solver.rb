@@ -1,6 +1,13 @@
+#Script to solve secret politician meeting brain teaser
+#http://fivethirtyeight.com/features/who-will-win-the-politicians-secret-vote/?ex_cid=538fb
+
+#global to print debug information
 debug = false
 
-#preferences is an array of candidate preferences (candidate[0]'s first preference is candidate[0][0])
+#preferences is an array of candidate preferences 
+#candidate[0]'s first preference is candidate[0][0]
+#candidate[0]'s second preference is candidate[0][1]
+#etc...
 def simulate(preferences, debug = false)
 	#winner is an array where the index indicates the round of voting, and the value 
 	#indicates the candidate that will win given that they've made it to this round
@@ -8,6 +15,7 @@ def simulate(preferences, debug = false)
 	num_rounds = preferences[0].length - 1
 	num_candidates = preferences.length
 
+	#start with the final round of voting and build backwards
 	num_rounds.downto(1).each do |i|
 		matchup_a = i - 1
 		#a vote for matchup_b is a vote for b OR whoever is going to win in the next round
@@ -18,17 +26,18 @@ def simulate(preferences, debug = false)
 		vote = []
 
 		if winner.length == 0
-			#if this is the last round, current best is matchup_b
+			#if this is the last round, next winner is matchup_b
 			next_winner = matchup_b
 		else
-			#if this is not the last round, set current best to whatever the best we can do next round is
+			#if this is not the last round, next winner is the winner in the next round
 			next_winner = winner[0]
 		end 
 
 		0.upto(num_candidates - 1).each do |j|
-			#if candidate j prefers current_best to a, they vote for b.  Otherwise they vote for a.
+			#if candidate j prefers next_winner to a, they vote for b.  Otherwise they vote for a.
+			#note there can never be a tie in this formulation.
 			if debug
-				puts j.to_s + " voting between " + matchup_a.to_s + " and " + next_winner.to_s + "..."
+				puts "Candidate " + j.to_s + " voting between " + matchup_a.to_s + " and " + next_winner.to_s + "..."
 			end
 			if preferences[j].index(matchup_a) < preferences[j].index(next_winner)
 				if debug
@@ -43,13 +52,13 @@ def simulate(preferences, debug = false)
 			end
 		end
 		if vote.inject(:+) <= num_candidates.to_f / 2.0
-			#a has it, prepend a to winner array
+			#a has it, a is this round's winner
 			if debug
 				puts "**** " + matchup_a.to_s + " wins!"
 			end
 			winner.unshift(matchup_a)
 		else
-			#b has it, winner is whoever wins the next round
+			#b has it, this round's winner is whoever wins the next round
 			if debug
 				puts "**** " + next_winner.to_s + " wins!"
 			end
@@ -74,7 +83,7 @@ preferences << [4, 3, 1, 2, 0]
 
 
 #Question 1: Who will be chosen as the presidential candidate?
-q1_winner_array = simulate(preferences)
+q1_winner_array = simulate(preferences, debug)
 
 #Question 2: To whom should he transfer his vote, given his candidate preference outlined above 
 #(A > B > C > D > E)?
@@ -87,7 +96,7 @@ q2_transfer = 0
 
 	#replace A's preferences with the other person's
 	temp_preferences[0] = temp_preferences[i]
-	temp_winner_array = simulate(temp_preferences)
+	temp_winner_array = simulate(temp_preferences, debug)
 	if debug 
 		puts "Transfering vote to " + i.to_s + "..."
 		puts temp_winner_array.inspect
