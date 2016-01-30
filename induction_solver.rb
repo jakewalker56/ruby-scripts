@@ -2,7 +2,7 @@
 #http://fivethirtyeight.com/features/who-will-win-the-politicians-secret-vote/?ex_cid=538fb
 
 #global to print debug information
-debug = true
+debug = false
 
 #preferences is an array of candidate preferences 
 #candidate[0]'s first preference is candidate[0][0]
