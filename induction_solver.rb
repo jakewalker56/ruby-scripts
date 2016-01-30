@@ -2,24 +2,24 @@
 #http://fivethirtyeight.com/features/who-will-win-the-politicians-secret-vote/?ex_cid=538fb
 
 #global to print debug information
-debug = false
+debug = true
 
 #preferences is an array of candidate preferences 
 #candidate[0]'s first preference is candidate[0][0]
 #candidate[0]'s second preference is candidate[0][1]
 #etc...
-def simulate(preferences, debug = false)
+def simulate(preferences, vote_order, debug = false)
 	#winner is an array where the index indicates the round of voting, and the value 
 	#indicates the candidate that will win given that they've made it to this round
 	winner = []
-	num_rounds = preferences[0].length - 1
+	num_rounds = vote_order.length - 1
 	num_candidates = preferences.length
 
 	#start with the final round of voting and build backwards
 	num_rounds.downto(1).each do |i|
-		matchup_a = i - 1
+		matchup_a = vote_order[i - 1]
 		#a vote for matchup_b is a vote for b OR whoever is going to win in the next round
-		matchup_b = i
+		matchup_b = vote_order[i]
 
 		#vote is an array where the index indicates the candidate, and the value indicates which of the 
 		#two current candidates they are voting for (0 = a, 1 = b)
@@ -81,9 +81,13 @@ preferences << [3, 1, 0, 4, 2]
 #Candidate E: E > D > B > C > A
 preferences << [4, 3, 1, 2, 0]
 
+#vote_order specifies the order the votes happen in.  [0, 1, 2] would mean that everyone votes 
+#between 0 and 1, and the winner is then voted against 2, etc.
+
+vote_order = [0, 1, 2, 3, 4]
 
 #Question 1: Who will be chosen as the presidential candidate?
-q1_winner_array = simulate(preferences, debug)
+q1_winner_array = simulate(preferences, vote_order, debug)
 
 #Question 2: To whom should he transfer his vote, given his candidate preference outlined above 
 #(A > B > C > D > E)?
@@ -96,7 +100,7 @@ q2_transfer = 0
 
 	#replace A's preferences with the other person's
 	temp_preferences[0] = temp_preferences[i]
-	temp_winner_array = simulate(temp_preferences, debug)
+	temp_winner_array = simulate(temp_preferences, vote_order, debug)
 	if debug 
 		puts "Transfering vote to " + i.to_s + "..."
 		puts temp_winner_array.inspect
