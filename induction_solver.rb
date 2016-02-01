@@ -135,10 +135,10 @@ Gnuplot.open do |gp|
   
 	candidate_trials = [5, 10, 25, 100]
     #candidate_trials = [5, 6, 7, 8, 9, 10]
-    #candidate_trials = [100]
+    #candidate_trials = [400]
     title_string = candidate_trials.join("_")
 	
-	num_points = 100
+	num_points = 10
     
     plot.terminal "png"
     plot.output File.expand_path("../" + title_string + "_win_percentage.png", __FILE__)
