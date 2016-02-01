@@ -1,3 +1,4 @@
+require 'gnuplot'
 #Script to solve secret politician meeting brain teaser
 #http://fivethirtyeight.com/features/who-will-win-the-politicians-secret-vote/?ex_cid=538fb
 
@@ -84,7 +85,8 @@ preferences << [4, 3, 1, 2, 0]
 #vote_order specifies the order the votes happen in.  [0, 1, 2] would mean that everyone votes 
 #between 0 and 1, and the winner is then voted against 2, etc.
 
-vote_order = [0, 1, 2, 3, 4]
+#vote_order = [0, 1, 2, 3, 4]
+vote_order = [4, 3, 2, 1, 0]
 
 #Question 1: Who will be chosen as the presidential candidate?
 q1_winner_array = simulate(preferences, vote_order, debug)
@@ -124,3 +126,55 @@ puts "Question 1: " + q1_winner_array[0].to_s + " will win (winner array = " + q
 puts "Question 2: A will transfer vote to " + q2_transfer.to_s
 puts "Question 3: Winner after transfering to " + q2_transfer.to_s + " will be " + q2_winner_array[0].to_s + " (winner array = " + q2_winner_array.inspect + ")"
 puts "Question 4: A " + (preferences[0].index(q2_winner_array[0]) < preferences[0].index(q1_winner_array[0]) ? "should not" : "should") + " get the flu shot!"
+
+
+
+Gnuplot.open do |gp|
+  Gnuplot::Plot.new( gp ) do |plot|
+  
+	candidate_trials = [5, 10, 25, 100]
+    #candidate_trials = [5, 6, 7, 8, 9, 10]
+    title_string = candidate_trials.join("_")
+
+    plot.terminal "png"
+    plot.output File.expand_path("../" + title_string + "_win_percentage.png", __FILE__)
+    plot.xrange "[0:9]"
+    plot.title  "Win Percentage by Vote Order"
+    plot.ylabel "Win Percentage"
+    plot.xlabel "Order voted on (0 = first vote, 1 = second vote, etc.)"
+    
+    num_points = 10
+    plot.data = []
+
+    for k in candidate_trials
+		num_candidates = k
+		num_simulations = 10000
+		winner_array = []
+		vote_order = (0..(num_candidates-1)).to_a
+		num_simulations.times do
+			preferences = []
+			num_candidates.times do |j|
+				preferences[j] = (0..(num_candidates-1)).to_a.shuffle
+				#remove himself from preferences
+				preferences[j].delete(j)
+				#add himself to front- everyone prefers themselves!
+				preferences[j].unshift(j)
+			end
+			winner_array << simulate(preferences, vote_order, debug)[0]
+		end
+		percent_winners = []
+		num_candidates.times do |i|
+			percent_winners[i] = winner_array.select{|v| v == i}.count.to_f / num_simulations.to_f
+		end
+	    x = (0..(num_points-1)).to_a
+	    y = percent_winners.first(num_points)
+	      
+	    plot.data << Gnuplot::DataSet.new( [x, y] ) { |ds|
+	        ds.with = "linespoints"
+	        ds.title = num_candidates.to_s + " Candidates"
+	      }
+	end
+
+  end
+end
+
