@@ -52,6 +52,7 @@ def simulate(preferences, vote_order, debug = false)
 				vote[j] = 1
 			end
 		end
+		#if vote.inject(:+) < num_candidates.to_f / 2.0
 		if vote.inject(:+) <= num_candidates.to_f / 2.0
 			#a has it, a is this round's winner
 			if debug
@@ -134,16 +135,18 @@ Gnuplot.open do |gp|
   
 	candidate_trials = [5, 10, 25, 100]
     #candidate_trials = [5, 6, 7, 8, 9, 10]
+    #candidate_trials = [100]
     title_string = candidate_trials.join("_")
-
+	
+	num_points = 100
+    
     plot.terminal "png"
     plot.output File.expand_path("../" + title_string + "_win_percentage.png", __FILE__)
-    plot.xrange "[0:9]"
+    plot.xrange "[0:" + (num_points - 1).to_s + "]"
     plot.title  "Win Percentage by Vote Order"
     plot.ylabel "Win Percentage"
     plot.xlabel "Order voted on (0 = first vote, 1 = second vote, etc.)"
     
-    num_points = 10
     plot.data = []
 
     for k in candidate_trials
